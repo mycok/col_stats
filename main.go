@@ -47,7 +47,7 @@ func run(filenames []string, op string, column int, w io.Writer) error {
 		// Open the file for reading.
 		f, err := os.Open(fname)
 		if err != nil {
-			return fmt.Errorf("Cannot open file: %w", err)
+			return fmt.Errorf("cannot open file: %w", err)
 		}
 
 		// Parse the csv column data into a slice of float64 numbers.
