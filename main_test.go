@@ -66,16 +66,22 @@ func TestRun(t *testing.T) {
 			if tc.expErr != nil {
 				if err == nil {
 					t.Fatalf("Expected an error but instead got nil")
+
+					return
 				}
 
 				if !errors.Is(err, tc.expErr) {
 					t.Errorf("Expected error: %q, Got: %q instead", tc.expected, err)
 				}
+
+				return
 			}
 
 			// Handle cases where an error is not expected.
 			if err != nil {
 				t.Fatalf("Unexpected error: %q", err)
+
+				return
 			}
 
 			if tc.expected != buffer.String() {

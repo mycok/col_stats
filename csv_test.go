@@ -57,8 +57,8 @@ func TestCsvToFloat(t *testing.T) {
 				192.168.0.88,899,220
 				192.168.0.199,3054,226
 				192.168.0.100,4133,218
-				192.168.0.199,950,238
-				`
+				192.168.0.199,950,238`
+
 	testcases := []struct{
 		name string
 		column int
@@ -109,6 +109,8 @@ func TestCsvToFloat(t *testing.T) {
 
 			// Handle cases where an error is expected.
 			if tc.expErr != nil {
+				// If we expect an error but get nil, we log an error msg and return
+				// the function.
 				if err == nil {
 					t.Errorf("Expected error, Got nil instead")
 
@@ -118,6 +120,8 @@ func TestCsvToFloat(t *testing.T) {
 				if !errors.Is(err, tc.expErr) {
 					t.Errorf("Expected error: %q, Got: %q instead", tc.expErr, err)
 				}
+
+				return
 			}
 
 			// Handle cases where an error is not expected.
