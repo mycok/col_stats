@@ -18,19 +18,19 @@ func TestOperations(t *testing.T) {
 	}
 
 	testcases := []struct {
-		name string
+		name      string
 		operation statsFunc
-		expected []float64
+		expected  []float64
 	}{
 		{
-			name: "sum",
-			 operation: sum,
-			  expected: []float64{300, 85.927, -30, 436},
+			name:      "sum",
+			operation: sum,
+			expected:  []float64{300, 85.927, -30, 436},
 		},
 		{
-			name: "avg",
+			name:      "avg",
 			operation: avg,
-			expected: []float64{37.5, 6.609769230769231, -15, 72.666666666666666},
+			expected:  []float64{37.5, 6.609769230769231, -15, 72.666666666666666},
 		},
 	}
 
@@ -48,7 +48,6 @@ func TestOperations(t *testing.T) {
 		}
 	}
 
-
 }
 
 func TestCsvToFloat(t *testing.T) {
@@ -59,12 +58,12 @@ func TestCsvToFloat(t *testing.T) {
 				192.168.0.100,4133,218
 				192.168.0.199,950,238`
 
-	testcases := []struct{
-		name string
-		column int
+	testcases := []struct {
+		name     string
+		column   int
 		expected []float64
-		expErr error
-		r io.Reader
+		expErr   error
+		r        io.Reader
 	}{
 		{
 			name:     "column2",
