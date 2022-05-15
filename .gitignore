@@ -1,3 +1,4 @@
 testdata/**
 colstats
+col_stats.test
 .vscode/**
