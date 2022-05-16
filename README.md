@@ -1,6 +1,6 @@
 # Col_stats [column statistics]
 
-Run arithmetic operations of csv column data
+Run arithmetic operations on csv column data
 
 ## Usage
 
