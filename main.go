@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
+	"sync"
 )
 
 func main() {
@@ -43,27 +45,69 @@ func run(filenames []string, op string, column int, w io.Writer) error {
 
 	mergedColValues := make([]float64, 0)
 
-	for _, fname := range filenames {
-		// Open the file for reading.
-		f, err := os.Open(fname)
-		if err != nil {
-			return fmt.Errorf("cannot open file: %w", err)
-		}
+	filesCh := make(chan string)
+	resultCh := make(chan []float64)
+	errCh := make(chan error)
+	doneCh := make(chan struct{})
 
-		// Parse the csv column data into a slice of float64 numbers.
-		data, err := csvToFloat(f, column)
-		if err != nil {
-			return err
-		}
+	wg := sync.WaitGroup{}
 
-		if err := f.Close(); err != nil {
-			return err
-		}
+	// Loop through all files passing them to the files channel where each
+	// will be processed by a worker goroutine when one is available.
+	go func() {
+		defer close(filesCh)
 
-		mergedColValues = append(mergedColValues, data...)
+		for _, fname := range filenames {
+			filesCh <- fname
+		}
+	}()
+
+	// Loop through all filenames and process each file concurrently.
+	for i := 0; i < runtime.NumCPU(); i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			for fname := range filesCh {
+				// Open the file for reading.
+				f, err := os.Open(fname)
+				if err != nil {
+					errCh <- fmt.Errorf("cannot open file: %w", err)
+					// Write the error to the error channel and  stop execution from
+					// continuing by returning from the goroutine.
+					return
+				}
+
+				// Parse the csv column data into a slice of float64 numbers.
+				data, err := csvToFloat(f, column)
+				if err != nil {
+					errCh <- err
+				}
+
+				if err := f.Close(); err != nil {
+					errCh <- err
+				}
+
+				resultCh <- data
+			}
+		}()
 	}
 
-	_, err := fmt.Fprintln(w, opFunc(mergedColValues))
+	go func() {
+		wg.Wait()
+		close(doneCh)
+	}()
 
-	return err
+	for {
+		select {
+		case err := <-errCh:
+			return err
+		case data := <-resultCh:
+			mergedColValues = append(mergedColValues, data...)
+		case <-doneCh:
+			_, err := fmt.Fprintln(w, opFunc(mergedColValues))
+			return err
+		}
+	}
 }

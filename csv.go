@@ -32,7 +32,7 @@ func csvToFloat(r io.Reader, column int) ([]float64, error) {
 	var data []float64
 
 	for i := 0; ; i++ {
-		row, err := cr.Read();
+		row, err := cr.Read()
 		if err != nil {
 			// If there's no more rows to read from the file.
 			if err == io.EOF {
